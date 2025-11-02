@@ -40,7 +40,7 @@ fi
 read -p "Do you want to setup ArduPilot SITL build environment? (y/n)" yn
 case $yn in
     [Yy]* ) echo "Setting up ArduPilot SITL build environment... (respond NO for each prompt)"; sleep 5;
-                bash "$BASE_DIR/ardu_ws/src/ardupilot/Tools/environment_install/install-prereqs-ubuntu.sh";;
+                bash "$BASE_DIR/ardu_ws/src/ardupilot/Tools/environment_install/install-prereqs-ubuntu.sh";. ~/.profile;;
     [Nn]* ) echo "Skipping ArduPilot SITL build environment setup.";;
     * ) echo "Please answer yes or no."; exit 1;;
 esac
