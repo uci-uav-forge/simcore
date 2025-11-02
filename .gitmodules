@@ -1,0 +1,31 @@
+[submodule "ardu_ws/Micro-XRCE-DDS-Gen"]
+	path = ardu_ws/Micro-XRCE-DDS-Gen
+	url = https://github.com/ardupilot/Micro-XRCE-DDS-Gen.git
+[submodule "ardu_ws/src/ardupilot"]
+	path = ardu_ws/src/ardupilot
+	url = https://github.com/ArduPilot/ardupilot.git
+	branch = master
+[submodule "ardu_ws/src/ardupilot_gazebo"]
+	path = ardu_ws/src/ardupilot_gazebo
+	url = https://github.com/uci-uav-forge/ardupilot_gazebo.git
+	branch = forge2026
+[submodule "ardu_ws/src/ardupilot_gz"]
+	path = ardu_ws/src/ardupilot_gz
+	url = https://github.com/uci-uav-forge/ardupilot_gz.git
+	branch = main
+[submodule "ardu_ws/src/SITL_Models"]
+	path = ardu_ws/src/SITL_Models
+	url = https://github.com/ArduPilot/SITL_Models.git
+	branch = master
+[submodule "ardu_ws/src/micro-ROS-Agent"]
+	path = ardu_ws/src/micro-ROS-Agent
+	url = https://github.com/micro-ROS/micro-ROS-Agent.git
+	branch = humble
+[submodule "ardu_ws/src/ros_gz"]
+	path = ardu_ws/src/ros_gz
+	url = https://github.com/gazebosim/ros_gz
+	branch = humble
+[submodule "ardu_ws/src/sdformat_urdf"]
+	path = ardu_ws/src/sdformat_urdf
+	url = https://github.com/ros/sdformat_urdf.git
+	branch = humble
