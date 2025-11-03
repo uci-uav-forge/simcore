@@ -76,14 +76,17 @@ echo "export ROS_DISTRO=humble" >> ~/.bashrc
 echo "export PATH=\$PATH:$PWD/scripts" >> ~/.bashrc
 echo "export PYTHONPATH=\$PYTHONPATH:$BASE_DIR/ardu_ws/install/ardupilot_msgs/local/lib/python3.10/dist-packages" >> ~/.bashrc
 
+# Ask if running inside virtual machine
+read -p "Are you running inside a virtual machine? (y/n) " yn
+case $yn in
+    [Yy]* ) echo "Disabling hardware acceleration"; echo "export LIBGL_DRI3_DISABLE=1" >> ~/.bashrc;;
+    [Nn]* ) echo "Coolio, leaving hardware acceleration enabled.";;
+    * ) echo "Please answer yes or no."; exit 1;;
+esac
+
 # Adding stuff to bash aliases
 echo "Adding ArduPilot Gazebo aliases to ~/.bash_aliases ..."
 echo "" >> ~/.bash_aliases
 echo "# ArduPilot Gazebo aliases" >> ~/.bash_aliases
 echo "alias sf='source $BASE_DIR/ardu_ws/install/setup.bash && export PATH=/usr/lib/ccache:$BASE_DIR/ardu_ws/src/ardupilot/Tools/autotest:\$PATH'" >> ~/.bash_aliases
 echo "alias runway='sf && ros2 launch ardupilot_gz_bringup iris_runway.launch.py'" >> ~/.bash_aliases
-
-# Testing first build
-source ~/.bashrc
-cd "$BASE_DIR/ardu_ws"
-colcon build
