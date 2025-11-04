@@ -5,6 +5,7 @@
 # https://ardupilot.org/dev/docs/ros2.html
 # https://ardupilot.org/dev/docs/ros2-sitl.html
 # https://ardupilot.org/dev/docs/ros2-gazebo.html
+# https://github.com/ArduPilot/SITL_Models/blob/master/Gazebo/docs/AltiTransition.md
 
 # Ask if gazebo and ros are installed already
 read -p "Have you already installed Gazebo and ROS2 Humble? (y/n) " yn
