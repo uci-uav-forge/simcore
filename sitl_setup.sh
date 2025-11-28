@@ -19,8 +19,12 @@ cleanup() {
 trap cleanup SIGINT
 
 echo "Starting sim..."
-source ~/.bashrc
 . ~/.profile
+source ~/.bashrc
+source ~/.bash_aliases
+shopt -s expand_aliases
+sf
+
 
 started=0
 MARKER="SIM_VEHICLE: Waiting for SITL to exit"
@@ -38,10 +42,10 @@ done < <(
 
 if [[ "$*" == *"--headless"* ]]; then
 	echo "Running headless mode..."
-	mavproxy.py --master=tcp:127.0.0.1:5760 --daemon --out=127.0.0.1:14550 --out=127.0.0.1:14551 >/dev/null &
+	mavproxy.py --master=tcp:127.0.0.1:5760 --daemon --out=127.0.0.1:14550 --out=127.0.0.1:14551 --streamrate=-1 >/dev/null &
 else
 	echo "Running with console..."
-	mavproxy.py --master=tcp:127.0.0.1:5760 --map --console --out=127.0.0.1:14550 --out=127.0.0.1:14551
+	mavproxy.py --master=tcp:127.0.0.1:5760 --map --console --out=127.0.0.1:14550 --out=127.0.0.1:14551 --streamrate=-1
 	
 fi
 
