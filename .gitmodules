@@ -1,10 +1,6 @@
 [submodule "ardu_ws/Micro-XRCE-DDS-Gen"]
 	path = ardu_ws/Micro-XRCE-DDS-Gen
 	url = https://github.com/ardupilot/Micro-XRCE-DDS-Gen.git
-[submodule "ardu_ws/src/ardupilot"]
-	path = ardu_ws/src/ardupilot
-	url = https://github.com/ArduPilot/ardupilot.git
-	branch = master
 [submodule "ardu_ws/src/ardupilot_gazebo"]
 	path = ardu_ws/src/ardupilot_gazebo
 	url = https://github.com/uci-uav-forge/ardupilot_gazebo.git
