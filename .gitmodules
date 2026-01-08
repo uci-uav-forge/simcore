@@ -25,3 +25,7 @@
 	path = ardu_ws/src/sdformat_urdf
 	url = https://github.com/ros/sdformat_urdf.git
 	branch = humble
+[submodule "ardu_ws/src/ardupilot"]
+	path = ardu_ws/src/ardupilot
+	url = https://github.com/uci-uav-forge/ardupilot.git
+	branch = forge
