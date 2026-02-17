@@ -1,10 +1,12 @@
 #!/bin/bash
 
 echo -e "\nCleaning up..."
+
 pkill mavproxy
 pkill xterm
 pkill 'bash <defunct>'
-#pkill python3
+pkill python3
+
 rm -f eeprom.bin
 rm -f mav.parm
 rm -f mav.tlog
