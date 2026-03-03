@@ -11,18 +11,14 @@ def generate_modified_sdf(sdf_path: str, scale_factor: float, hsv_tuple: tuple =
     tree = ET.parse(sdf_path)
     root = tree.getroot()
 
-    # Get the absolute directory path of the model (e.g., .../models/canopy1)
     model_dir = os.path.dirname(os.path.abspath(sdf_path))
 
-    # --- 0. FIX RELATIVE URIS ---
     for uri in root.findall('.//mesh/uri'):
         uri_text = uri.text.strip()
-        # If it's a relative path (doesn't start with file://, model://, or /)
         if not uri_text.startswith(('file://', 'model://', 'https://', '/')):
-            # Inject the absolute file path so Gazebo finds it in memory
+            # inject the absolute file path so Gazebo finds it in memory
             uri.text = f"file://{os.path.join(model_dir, uri_text)}"
 
-    # --- 1. APPLY SCALE ---
     if scale_factor != 1.0:
         for pose in root.findall('.//pose'):
             vals = pose.text.strip().split()
@@ -43,7 +39,6 @@ def generate_modified_sdf(sdf_path: str, scale_factor: float, hsv_tuple: tuple =
         for radius in root.findall('.//sphere/radius'):
             radius.text = str(float(radius.text) * scale_factor)
 
-    # --- 2. APPLY COLOR ---
     if hsv_tuple is not None:
         h, s, v = hsv_tuple
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
