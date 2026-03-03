@@ -1,28 +1,26 @@
-import subprocess
 import random
+import subprocess
 import numpy as np
-from pathlib import Path
 from pymap3d import geodetic2enu
+from shapely.geometry import Polygon, Point
 from launch import LaunchDescription, LaunchService
 from launch_ros.actions import Node as LaunchNode
 
-def random_point_in_pca_rect(points):
-    """
-    Finds the best-fit oriented rectangle using PCA and samples a random point within it.
-    """
-    points = np.asarray(points)
-    centroid = np.mean(points, axis=0)
-    U, S, Vt = np.linalg.svd(points - centroid)
-    axes = Vt.T
-    proj_points = (points - centroid) @ axes
-    min_proj, max_proj = proj_points.min(axis=0), proj_points.max(axis=0)
-    rand_proj = np.random.uniform(min_proj, max_proj)
-    return centroid + rand_proj @ axes.T
+from .target_model import TargetModel
+from .modify_sdf import generate_modified_sdf
+
+from .targets import CANOPY1, CANOPY2, HUMAN1, HUMAN2, STOP_SIGN
+
+def random_point_in_polygon(polygon: Polygon) -> np.ndarray:
+    """Finds a random coordinate strictly inside the given Shapely polygon."""
+    minx, miny, maxx, maxy = polygon.bounds
+    while True:
+        p = Point(random.uniform(minx, maxx), random.uniform(miny, maxy))
+        if polygon.contains(p):
+            return np.array([p.x, p.y])
 
 def delete_model(model_name: str):
-    """
-    Uses Gazebo transport service to remove a model by name.
-    """
+    """Uses Gazebo transport service to remove a model by name."""
     subprocess.run([
         "gz", "service", "-s", "/world/map/remove", 
         "--reqtype", "gz.msgs.Entity", 
@@ -33,52 +31,45 @@ def delete_model(model_name: str):
 
 class TargetManager:
     def __init__(self):
-        
-        base_path = Path(__file__).parent.parent.resolve()
-        self.model_path = str(base_path / "ardu_ws/src/ardupilot_gazebo/models")
-        
+
         self.canopy_targets = [
-            f"{self.model_path}/canopy1",
-            f"{self.model_path}/canopy2",
+            CANOPY1,
+            CANOPY2,
         ]
         self.human_targets = [
-            f"{self.model_path}/human1",
-            f"{self.model_path}/human2",
+            HUMAN1,
+            HUMAN2,
         ]
-        self.noise = [ #TBD
-            # f"{self.model_path}/stop_sign",
-            # f"{self.model_path}/person_standing",
-            # f"{self.model_path}/prius_hybrid",
-            # f"{self.model_path}/robocup_3Dsim_ball",
-            # f"{self.model_path}/motorcycle_0",
-            # f"{self.model_path}/boat_0",
-            # f"{self.model_path}/bat_0",
-            # f"{self.model_path}/bed_0",
-            # f"{self.model_path}/plane_0",
-            # f"{self.model_path}/bus_0",
-            # f"{self.model_path}/skis_0",
-            # f"{self.model_path}/snowboard_0",
-            # f"{self.model_path}/suitcase_0",
-            # f"{self.model_path}/tennis_racket_0",
-            # f"{self.model_path}/umbrella_0",
+        self.noise = [
+            #TODO: add more noise targets
         ]
-
         self.active_targets = []
-        self.target_radius = 5.0  # Used for checking spawn overlaps
+        self.target_radius = 5.0
 
-    def _spawn_single_model(self, model_path, model_name, x, y, z=0.2):
+    def _spawn_single_model(self, model: TargetModel, spawn_name: str, x: float, y: float, z: float = 0.2):
+        roll, pitch, yaw = model.get_orient()
+        scale = model.get_scale()
+        hsv = model.get_HSV()
+
+        # Generate the dynamic SDF string from the template
+        sdf_filepath = f"{model.get_path()}/model.sdf"
+        sdf_string = generate_modified_sdf(sdf_filepath, scale, hsv)
+
         ld = LaunchDescription([
             LaunchNode(
                 package="ros_gz_sim",
                 executable="create",
-                name="spawn_" + model_name,
+                name="spawn_" + spawn_name,
                 output="screen",
                 arguments=[
-                    "-file", model_path,
-                    "-name", model_name,
+                    "-string", sdf_string,
+                    "-name", spawn_name,
                     "-x", str(x),
                     "-y", str(y),
                     "-z", str(z),
+                    "-R", str(roll),
+                    "-P", str(pitch),
+                    "-Y", str(yaw),
                     "--ros-args", "--log-level", "error",
                 ],
             )
@@ -87,34 +78,48 @@ class TargetManager:
         ls.include_launch_description(ld)
         ls.run()
 
-    def respawn_targets(self, dropzone_gps_boundary, home_lat, home_lon, home_alt):
-        """
-        Clears old targets, calculates new ENU bounds, and randomly positions 
-        the 2 guaranteed models + 2 randomly selected models.
-        Returns a list of the 4 target (x, y) coordinate arrays.
-        """
+    def delete_all_targets(self):
         for name in self.active_targets:
             delete_model(name)
         self.active_targets.clear()
+
+    def respawn_targets(self, dropzone_gps_boundary, home_lat, home_lon):
+        self.delete_all_targets()
+
+        # Convert GPS bounds to ENU Cartesian polygon
         dropzone_local = [
-            np.array(geodetic2enu(lat, lng, home_alt, home_lat, home_lon, home_alt))[:2]
+            np.array(geodetic2enu(lat, lng, 0.0, home_lat, home_lon, 0.0))[:2]
             for lat, lng in dropzone_gps_boundary
         ]
-        models_to_spawn = random.sample(self.canopy_targets, 1) + random.sample(self.human_targets, 1)
-        models_to_spawn.extend(random.sample(self.noise, 2))
-        random.shuffle(models_to_spawn)
+        dropzone_polygon = Polygon(dropzone_local)
 
+        models_to_spawn = random.sample(self.canopy_targets, 1) + random.sample(self.human_targets, 1)
+        if len(self.noise) >= 2:
+            models_to_spawn.extend(random.sample(self.noise, 2))
+
+        random.shuffle(models_to_spawn)
         target_positions = []
-        
-        for i, model_path in enumerate(models_to_spawn):
+
+        max_attempts = 200 
+        for i, model in enumerate(models_to_spawn):
             target_pos = None
-            while target_pos is None or any(np.linalg.norm(target_pos - p) < 2 * self.target_radius for p in target_positions):
-                target_pos = random_point_in_pca_rect(dropzone_local)
+            attempts = 0
             
+            while attempts < max_attempts:
+                candidate_pos = random_point_in_polygon(dropzone_polygon)
+                if not any(np.linalg.norm(candidate_pos - p) < 2 * self.target_radius for p in target_positions):
+                    target_pos = candidate_pos
+                    break
+                attempts += 1
+            
+            if target_pos is None:
+                print(f"Error: Could not find valid location for {model.name}. Skipping.")
+                continue 
+                
             target_positions.append(target_pos)
-            model_name = f"target_{i}"
+            spawn_name = f"target_{i}"
             
-            self._spawn_single_model(model_path, model_name, target_pos[0], target_pos[1])
-            self.active_targets.append(model_name)
+            self._spawn_single_model(model, spawn_name, target_pos[0], target_pos[1])
+            self.active_targets.append(spawn_name)
 
         return target_positions
