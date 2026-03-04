@@ -1,6 +1,7 @@
 import numpy as np
 import time
 
+
 class MissionScorer:
     def __init__(self, target_radius=5.0):
         self.target_radius = target_radius
@@ -14,7 +15,7 @@ class MissionScorer:
         hit_counts = np.zeros(len(target_positions_2d))
 
         for drop in drop_positions_3d:
-            drop_2d = drop[:2] # ignore altitude for hit detection
+            drop_2d = drop[:2]  # ignore altitude for hit detection
             for i, target in enumerate(target_positions_2d):
                 if np.linalg.norm(drop_2d - target) < self.target_radius:
                     hit_counts[i] += 1
@@ -29,5 +30,5 @@ class MissionScorer:
         with open(f"mission_score_{self.run_name}.txt", "w+") as f:
             f.write(f"Hit Counts: {list(hit_counts)}\n")
             f.write(f"Final Score: {score}\n")
-            
+
         return score

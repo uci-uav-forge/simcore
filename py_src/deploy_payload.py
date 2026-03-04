@@ -8,6 +8,7 @@ from launch_ros.actions import Node as LaunchNode
 
 from .spawn_targets import delete_model
 
+
 class GzPositionProvider:
     def __init__(self, topic: str = "/world/map/model/iris/joint_state"):
         self.topic = topic
@@ -21,13 +22,17 @@ class GzPositionProvider:
         try:
             data = json.loads(json_line)
             pos = data.get("pose", {}).get("position", {})
-            self.position = np.array([pos.get("x", 0.0), pos.get("y", 0.0), pos.get("z", 0.0)])
+            self.position = np.array(
+                [pos.get("x", 0.0), pos.get("y", 0.0), pos.get("z", 0.0)]
+            )
         except json.JSONDecodeError:
             pass
 
     def _run_process(self):
         command = ["gz", "topic", "--echo", "--json-output", "--topic", self.topic]
-        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        self.process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
         while self.running:
             line = self.process.stdout.readline()
             if line.strip():
@@ -40,6 +45,7 @@ class GzPositionProvider:
 
     def get_position(self):
         return self.position
+
 
 class PayloadDropper:
     def __init__(self, log_func):
@@ -58,9 +64,9 @@ class PayloadDropper:
             self.log_func(f"Cleared {name}")
         self.active_models.clear()
 
-    def drop_payload(self, item : str = "beacon"):
+    def drop_payload(self, item: str = "beacon"):
         """
-        Grabs the current drone position, spawns the payload ("beacon" or "waterbottle") <br> 0.5m below it, 
+        Grabs the current drone position, spawns the payload ("beacon" or "waterbottle") <br> 0.5m below it,
         and returns the (x, y, z) coordinates of the drop. <br>
         #TODO: If parachute with model, adjust so drop x y z is final pos not drop pos.
         """
@@ -69,20 +75,31 @@ class PayloadDropper:
         model_name = f"dropped_payload_{item}_{self.drop_count}"
         self.drop_count += 1
         payload_path = self.beacon_path if item == "beacon" else self.waterbottle_path
-        ld = LaunchDescription([
-            LaunchNode(
-                package="ros_gz_sim",
-                executable="create",
-                name="spawn_" + model_name,
-                arguments=[
-                    "-file", payload_path,
-                    "-name", model_name,
-                    "-x", str(drop_x), "-y", str(drop_y), "-z", str(drop_z),
-                    "--ros-args", "--log-level", "error",
-                ],
-            )
-        ])
-        
+        ld = LaunchDescription(
+            [
+                LaunchNode(
+                    package="ros_gz_sim",
+                    executable="create",
+                    name="spawn_" + model_name,
+                    arguments=[
+                        "-file",
+                        payload_path,
+                        "-name",
+                        model_name,
+                        "-x",
+                        str(drop_x),
+                        "-y",
+                        str(drop_y),
+                        "-z",
+                        str(drop_z),
+                        "--ros-args",
+                        "--log-level",
+                        "error",
+                    ],
+                )
+            ]
+        )
+
         ls = LaunchService()
         ls.include_launch_description(ld)
         ls.run()
