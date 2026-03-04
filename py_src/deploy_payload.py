@@ -6,6 +6,8 @@ from pathlib import Path
 from launch import LaunchDescription, LaunchService
 from launch_ros.actions import Node as LaunchNode
 
+from .spawn_targets import delete_model
+
 class GzPositionProvider:
     def __init__(self, topic: str = "/world/map/model/iris/joint_state"):
         self.topic = topic
@@ -40,13 +42,21 @@ class GzPositionProvider:
         return self.position
 
 class PayloadDropper:
-    def __init__(self):
+    def __init__(self, log_func):
         self.tracker = GzPositionProvider(topic="/world/map/model/iris/joint_state")
         base_path = Path(__file__).parent.parent.resolve()
         model_path = str(base_path / "ardu_ws/src/ardupilot_gazebo/models")
         self.beacon_path = model_path + "/beacon"
         self.waterbottle_path = model_path + "/waterbottle"
         self.drop_count = 0
+        self.log_func = log_func
+        self.active_models = []
+
+    def reset(self):
+        for name in self.active_models:
+            delete_model(name)
+            self.log_func(f"Cleared {name}")
+        self.active_models.clear()
 
     def drop_payload(self, item : str = "beacon"):
         """
@@ -76,5 +86,7 @@ class PayloadDropper:
         ls = LaunchService()
         ls.include_launch_description(ld)
         ls.run()
-        
-        return np.array([drop_x, drop_y, drop_z])
+        drop_pos = np.array([drop_x, drop_y, drop_z])
+        self.active_models.append(model_name)
+        self.log_func(f"Dropped {item} at: {drop_pos}")
+        return drop_pos
