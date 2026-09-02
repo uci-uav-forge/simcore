@@ -2,6 +2,6 @@
 
 ## Starting the Simulation
 ```bash
-./sim_setup.sh <lat> <lon> --headless
+./sitl_setup.sh <latitude> <longitude> [--headless]
 ```
-- The `--headless` flag is optional and does not give an interactive mavproxy terminal
+- The `--headless` flag is optional and does not give an interactive MAVProxy terminal.

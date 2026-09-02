@@ -2,6 +2,13 @@
 
 LAT="${1}"; LON="${2}"
 
+# Check for required latitude and longitude arguments.
+if [[ -z "$LAT" || -z "$LON" ]]; then
+	echo "Error: latitude and longitude arguments are required." >&2
+	echo "Usage: $0 <latitude> <longitude> [--headless]" >&2
+	exit 1
+fi
+
 cleanup() {
 	echo -e "\nCleaning up..."
 	pkill -9 mavproxy
@@ -48,4 +55,3 @@ else
 	mavproxy.py --master=tcp:127.0.0.1:5760 --map --console --out=127.0.0.1:14550 --out=127.0.0.1:14551 --streamrate=-1
 	
 fi
-
