@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""Stop processes started by the launchers in this SimCore checkout."""
+
+from __future__ import annotations
+
+import argparse
+import os
+from pathlib import Path
+import sys
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.parse_args()
+    try:
+        import psutil
+    except ImportError:
+        print("Install the cleanup dependency: python3 -m pip install psutil", file=sys.stderr)
+        return 1
+
+    checkout = str(Path(__file__).resolve().parent)
+
+    def running_processes():
+        matches = []
+        for process in psutil.process_iter(["pid", "environ"], ad_value={}):
+            if process.pid == os.getpid():
+                continue
+            environment = process.info["environ"] or {}
+            if environment.get("SIMCORE_CHECKOUT") == checkout:
+                matches.append(process)
+        return matches
+
+    try:
+        processes = running_processes()
+        if not processes:
+            print("No running simulations found for this SimCore checkout.")
+            return 0
+
+        stopped = {process.pid for process in processes}
+        for process in processes:
+            try:
+                process.terminate()
+            except psutil.NoSuchProcess:
+                pass
+        _, alive = psutil.wait_procs(processes, timeout=3)
+
+        # Rescan to catch children spawned while shutdown was in progress.
+        remaining = set(alive) | set(running_processes())
+        stopped.update(process.pid for process in remaining)
+        for process in remaining:
+            try:
+                process.kill()
+            except psutil.NoSuchProcess:
+                pass
+        _, alive = psutil.wait_procs(remaining, timeout=3)
+        if alive:
+            print("Some simulation processes have not exited yet; run cleanup again.", file=sys.stderr)
+            return 1
+        print(f"Stopped {len(stopped)} SimCore process(es).")
+    except (psutil.Error, OSError) as exc:
+        print(f"Cleanup failed: {exc}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

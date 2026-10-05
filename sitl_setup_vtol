@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""Launch QuadPlane SITL with the shared setup executable."""
+
+from pathlib import Path
+import runpy
+
+
+if __name__ == "__main__":
+    setup = runpy.run_path(str(Path(__file__).resolve().with_name("sitl_setup")))
+    raise SystemExit(
+        setup["main"](
+            vehicle_args=("-j4", "-v", "ArduPlane", "-f", "quadplane"),
+            description="Launch QuadPlane (VTOL) SITL.",
+        )
+    )

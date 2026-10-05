@@ -1,9 +1,1 @@
-terrain
-eeprom.bin
-mav.parm
-mav.tlog
-mav.tlog.raw
-
-__pycache__/
-*.pyc
-*.pyo
+.env
