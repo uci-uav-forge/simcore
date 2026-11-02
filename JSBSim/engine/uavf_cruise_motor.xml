@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<electric_engine name="uavf_cruise_motor">
+  <power unit="WATTS">1500</power>
+</electric_engine>

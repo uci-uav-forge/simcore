@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<fdm_config name="uavf_4plus1" version="2.0" release="ALPHA">
+  <fileheader>
+    <author>UAVF 2026</author>
+    <filecreationdate>2026-11-01</filecreationdate>
+    <version>1.0</version>
+    <description>Four-lift-plus-one-cruise electric VTOL fixed-wing aircraft.</description>
+  </fileheader>
+  <metrics>
+    <wingarea unit="M2">0.72</wingarea>
+    <wingspan unit="M">2.40</wingspan>
+    <chord unit="M">0.30</chord>
+    <htailarea unit="M2">0.12</htailarea>
+    <htailarm unit="M">0.92</htailarm>
+    <vtailarea unit="M2">0.08</vtailarea>
+    <vtailarm unit="M">0.92</vtailarm>
+    <location name="AERORP" unit="M">
+      <x>0.00</x>
+      <y>0.00</y>
+      <z>0.00</z>
+    </location>
+    <location name="EYEPOINT" unit="M">
+      <x>0.78</x>
+      <y>0.00</y>
+      <z>0.08</z>
+    </location>
+    <location name="VRP" unit="M">
+      <x>0.00</x>
+      <y>0.00</y>
+      <z>0.00</z>
+    </location>
+  </metrics>
+  <mass_balance>
+    <ixx unit="KG*M2">0.42</ixx>
+    <iyy unit="KG*M2">0.29</iyy>
+    <izz unit="KG*M2">0.62</izz>
+    <ixy unit="KG*M2">0.00</ixy>
+    <ixz unit="KG*M2">0.00</ixz>
+    <iyz unit="KG*M2">0.00</iyz>
+    <emptywt unit="KG">3.80</emptywt>
+    <location name="CG" unit="M">
+      <x>0.00</x>
+      <y>0.00</y>
+      <z>-0.04</z>
+    </location>
+  </mass_balance>
+  <ground_reactions>
+    <contact type="BOGEY" name="left_main">
+      <location unit="M"><x>-0.18</x><y>0.52</y><z>-0.17</z></location>
+      <static_friction>0.80</static_friction>
+      <dynamic_friction>0.50</dynamic_friction>
+      <rolling_friction>0.02</rolling_friction>
+      <spring_coeff unit="N/M">1800</spring_coeff>
+      <damping_coeff unit="N/M/SEC">220</damping_coeff>
+      <damping_coeff_rebound unit="N/M/SEC">350</damping_coeff_rebound>
+      <max_steer unit="DEG">0</max_steer>
+      <brake_group>NONE</brake_group>
+      <retractable>0</retractable>
+    </contact>
+    <contact type="BOGEY" name="right_main">
+      <location unit="M"><x>-0.18</x><y>-0.52</y><z>-0.17</z></location>
+      <static_friction>0.80</static_friction>
+      <dynamic_friction>0.50</dynamic_friction>
+      <rolling_friction>0.02</rolling_friction>
+      <spring_coeff unit="N/M">1800</spring_coeff>
+      <damping_coeff unit="N/M/SEC">220</damping_coeff>
+      <damping_coeff_rebound unit="N/M/SEC">350</damping_coeff_rebound>
+      <max_steer unit="DEG">0</max_steer>
+      <brake_group>NONE</brake_group>
+      <retractable>0</retractable>
+    </contact>
+    <contact type="BOGEY" name="nose">
+      <location unit="M"><x>0.78</x><y>0.00</y><z>-0.12</z></location>
+      <static_friction>0.80</static_friction>
+      <dynamic_friction>0.50</dynamic_friction>
+      <rolling_friction>0.02</rolling_friction>
+      <spring_coeff unit="N/M">1200</spring_coeff>
+      <damping_coeff unit="N/M/SEC">180</damping_coeff>
+      <damping_coeff_rebound unit="N/M/SEC">280</damping_coeff_rebound>
+      <max_steer unit="DEG">25</max_steer>
+      <brake_group>NONE</brake_group>
+      <retractable>0</retractable>
+    </contact>
+  </ground_reactions>
+  <propulsion>
+    <engine file="uavf_lift_motor" name="lift_front_left">
+      <location unit="M"><x>0.42</x><y>0.55</y><z>0.00</z></location>
+      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
+      <feed>0</feed>
+      <thruster file="uavf_lift_prop"><location unit="M"><x>0.42</x><y>0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>1</sense><p_factor>1.0</p_factor></thruster>
+    </engine>
+    <engine file="uavf_lift_motor" name="lift_front_right">
+      <location unit="M"><x>0.42</x><y>-0.55</y><z>0.00</z></location>
+      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
+      <feed>0</feed>
+      <thruster file="uavf_lift_prop"><location unit="M"><x>0.42</x><y>-0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>-1</sense><p_factor>1.0</p_factor></thruster>
+    </engine>
+    <engine file="uavf_lift_motor" name="lift_rear_left">
+      <location unit="M"><x>-0.42</x><y>0.55</y><z>0.00</z></location>
+      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
+      <feed>0</feed>
+      <thruster file="uavf_lift_prop"><location unit="M"><x>-0.42</x><y>0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>-1</sense><p_factor>1.0</p_factor></thruster>
+    </engine>
+    <engine file="uavf_lift_motor" name="lift_rear_right">
+      <location unit="M"><x>-0.42</x><y>-0.55</y><z>0.00</z></location>
+      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
+      <feed>0</feed>
+      <thruster file="uavf_lift_prop"><location unit="M"><x>-0.42</x><y>-0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>1</sense><p_factor>1.0</p_factor></thruster>
+    </engine>
+    <engine file="uavf_cruise_motor" name="cruise">
+      <location unit="M"><x>0.86</x><y>0.00</y><z>0.00</z></location>
+      <orient unit="DEG"><roll>0</roll><pitch>0</pitch><yaw>0</yaw></orient>
+      <feed>0</feed>
+      <thruster file="uavf_cruise_prop"><location unit="M"><x>0.92</x><y>0.00</y><z>0.00</z></location><orient unit="DEG"><roll>0</roll><pitch>0</pitch><yaw>0</yaw></orient><sense>1</sense><p_factor>1.0</p_factor></thruster>
+    </engine>
+    <tank type="FUEL" number="0"><location unit="M"><x>0</x><y>0</y><z>-0.04</z></location><capacity unit="KG">0.001</capacity><contents unit="KG">0.001</contents></tank>
+  </propulsion>
+  <flight_control name="FCS: uavf_4plus1">
+    <channel name="primary">
+      <aerosurface_scale name="elevator"><input>fcs/elevator-cmd-norm</input><range><min>-0.35</min><max>0.35</max></range><output>fcs/elevator-pos-rad</output></aerosurface_scale>
+      <aerosurface_scale name="aileron"><input>fcs/aileron-cmd-norm</input><range><min>-0.35</min><max>0.35</max></range><output>fcs/aileron-pos-rad</output></aerosurface_scale>
+      <aerosurface_scale name="rudder"><input>fcs/rudder-cmd-norm</input><range><min>-0.35</min><max>0.35</max></range><output>fcs/rudder-pos-rad</output></aerosurface_scale>
+    </channel>
+  </flight_control>
+  <aerodynamics>
+    <axis name="DRAG">
+      <function name="aero/coefficient/CD0"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><value>0.035</value></product></function>
+      <function name="aero/coefficient/CDi"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>aero/cl-squared</property><value>0.045</value></product></function>
+      <function name="aero/coefficient/CDde"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>fcs/elevator-pos-rad</property><value>0.025</value></product></function>
+    </axis>
+    <axis name="SIDE"><function name="aero/coefficient/CYb"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>aero/beta-rad</property><value>-0.85</value></product></function></axis>
+    <axis name="LIFT">
+      <function name="aero/coefficient/CLalpha"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><table><independentVar>aero/alpha-rad</independentVar><tableData>
+        -0.30 -0.75
+        0.00 0.25
+        0.20 1.15
+        0.45 0.75
+      </tableData></table></product></function>
+      <function name="aero/coefficient/CLde"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>fcs/elevator-pos-rad</property><value>0.30</value></product></function>
+    </axis>
+    <axis name="ROLL">
+      <function name="aero/coefficient/Clb"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>metrics/bw-ft</property><property>aero/beta-rad</property><value>-0.10</value></product></function>
+      <function name="aero/coefficient/Clp"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>metrics/bw-ft</property><property>aero/bi2vel</property><property>velocities/p-aero-rad_sec</property><value>-0.45</value></product></function>
+      <function name="aero/coefficient/Clda"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>metrics/bw-ft</property><property>fcs/aileron-pos-rad</property><value>0.16</value></product></function>
+    </axis>
+    <axis name="PITCH">
+      <function name="aero/coefficient/Cmalpha"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>metrics/cbarw-ft</property><property>aero/alpha-rad</property><value>-0.55</value></product></function>
+      <function name="aero/coefficient/Cmde"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>metrics/cbarw-ft</property><property>fcs/elevator-pos-rad</property><value>-0.85</value></product></function>
+      <function name="aero/coefficient/Cmq"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>metrics/cbarw-ft</property><property>aero/ci2vel</property><property>velocities/q-aero-rad_sec</property><value>-8.0</value></product></function>
+    </axis>
+    <axis name="YAW">
+      <function name="aero/coefficient/Cnb"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>metrics/bw-ft</property><property>aero/beta-rad</property><value>0.12</value></product></function>
+      <function name="aero/coefficient/Cnr"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>metrics/bw-ft</property><property>aero/bi2vel</property><property>velocities/r-aero-rad_sec</property><value>-0.18</value></product></function>
+      <function name="aero/coefficient/Cndr"><product><property>aero/qbar-psf</property><property>metrics/Sw-sqft</property><property>metrics/bw-ft</property><property>fcs/rudder-pos-rad</property><value>-0.08</value></product></function>
+    </axis>
+  </aerodynamics>
+</fdm_config>
