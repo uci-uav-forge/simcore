@@ -83,35 +83,38 @@
     </contact>
   </ground_reactions>
   <propulsion>
-    <engine file="uavf_lift_motor" name="lift_front_left">
-      <location unit="M"><x>0.42</x><y>0.55</y><z>0.00</z></location>
-      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
-      <feed>0</feed>
-      <thruster file="uavf_lift_prop"><location unit="M"><x>0.42</x><y>0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>1</sense><p_factor>1.0</p_factor></thruster>
-    </engine>
-    <engine file="uavf_lift_motor" name="lift_front_right">
-      <location unit="M"><x>0.42</x><y>-0.55</y><z>0.00</z></location>
-      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
-      <feed>0</feed>
-      <thruster file="uavf_lift_prop"><location unit="M"><x>0.42</x><y>-0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>-1</sense><p_factor>1.0</p_factor></thruster>
-    </engine>
-    <engine file="uavf_lift_motor" name="lift_rear_left">
-      <location unit="M"><x>-0.42</x><y>0.55</y><z>0.00</z></location>
-      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
-      <feed>0</feed>
-      <thruster file="uavf_lift_prop"><location unit="M"><x>-0.42</x><y>0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>-1</sense><p_factor>1.0</p_factor></thruster>
-    </engine>
-    <engine file="uavf_lift_motor" name="lift_rear_right">
-      <location unit="M"><x>-0.42</x><y>-0.55</y><z>0.00</z></location>
-      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
-      <feed>0</feed>
-      <thruster file="uavf_lift_prop"><location unit="M"><x>-0.42</x><y>-0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>1</sense><p_factor>1.0</p_factor></thruster>
-    </engine>
+    <!-- JSBSim's ArduPilot bridge drives the unindexed throttle property,
+         which controls engine 0. Keep the cruise motor first for plane flight. -->
     <engine file="uavf_cruise_motor" name="cruise">
       <location unit="M"><x>0.86</x><y>0.00</y><z>0.00</z></location>
       <orient unit="DEG"><roll>0</roll><pitch>0</pitch><yaw>0</yaw></orient>
       <feed>0</feed>
       <thruster file="uavf_cruise_prop"><location unit="M"><x>0.92</x><y>0.00</y><z>0.00</z></location><orient unit="DEG"><roll>0</roll><pitch>0</pitch><yaw>0</yaw></orient><sense>1</sense><p_factor>1.0</p_factor></thruster>
+    </engine>
+    <!-- Lift engine order matches ArduPilot Quad-X motors 1 through 4. -->
+    <engine file="uavf_lift_motor" name="lift_front_right">
+      <location unit="M"><x>0.42</x><y>0.55</y><z>0.00</z></location>
+      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
+      <feed>0</feed>
+      <thruster file="uavf_lift_prop"><location unit="M"><x>0.42</x><y>0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>1</sense><p_factor>1.0</p_factor></thruster>
+    </engine>
+    <engine file="uavf_lift_motor" name="lift_rear_right">
+      <location unit="M"><x>-0.42</x><y>0.55</y><z>0.00</z></location>
+      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
+      <feed>0</feed>
+      <thruster file="uavf_lift_prop"><location unit="M"><x>-0.42</x><y>0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>-1</sense><p_factor>1.0</p_factor></thruster>
+    </engine>
+    <engine file="uavf_lift_motor" name="lift_rear_left">
+      <location unit="M"><x>-0.42</x><y>-0.55</y><z>0.00</z></location>
+      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
+      <feed>0</feed>
+      <thruster file="uavf_lift_prop"><location unit="M"><x>-0.42</x><y>-0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>1</sense><p_factor>1.0</p_factor></thruster>
+    </engine>
+    <engine file="uavf_lift_motor" name="lift_front_left">
+      <location unit="M"><x>0.42</x><y>-0.55</y><z>0.00</z></location>
+      <orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient>
+      <feed>0</feed>
+      <thruster file="uavf_lift_prop"><location unit="M"><x>0.42</x><y>-0.55</y><z>0.08</z></location><orient unit="DEG"><roll>0</roll><pitch>90</pitch><yaw>0</yaw></orient><sense>-1</sense><p_factor>1.0</p_factor></thruster>
     </engine>
     <tank type="FUEL" number="0"><location unit="M"><x>0</x><y>0</y><z>-0.04</z></location><capacity unit="KG">0.001</capacity><contents unit="KG">0.001</contents></tank>
   </propulsion>

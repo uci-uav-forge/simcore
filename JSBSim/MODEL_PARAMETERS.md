@@ -47,9 +47,10 @@
 | `*/ixx` | Propeller rotational inertia | 0.00008 / 0.00012 | kg m^2 | CAD or spin-up test |
 | `*/C_THRUST` | Thrust coefficient table | see XML | coefficient | Replace with static and forward-flight prop data |
 | `*/C_POWER` | Power coefficient table | see XML | coefficient | Replace with dynamometer data |
+| engine order | Cruise then Quad-X motors 1–4 | cruise, front-right, rear-right, rear-left, front-left | — | The JSBSim bridge maps engine 0 to fixed-wing throttle and motors 1–4 to outputs 5–8 |
 | four lift locations | Motor square arms | x +/-0.42, y +/-0.55 | m | Motor shaft locations from CG |
 | four lift orientations | Vertical thrust direction | pitch 90 | deg | Verify sign in a hover test |
-| four lift `sense` values | Alternating rotation | +, -, -, + | sign | Match actual prop rotation to cancel torque |
+| four lift `sense` values | Quad-X motor 1–4 rotation | +, -, +, - | sign | Match ArduPilot motor order and verify prop rotation |
 | cruise location | Forward motor shaft | (0.86, 0, 0) | m | Measure from CG |
 | cruise orientation | Forward thrust direction | pitch 0 | deg | Verify +X thrust direction |
 

@@ -1,6 +1,8 @@
 #!/bin/bash
 
 LAT="${1}"; LON="${2}"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname -- "$SCRIPT_DIR")"
 
 # Check for required latitude and longitude arguments.
 if [[ -z "$LAT" || -z "$LON" ]]; then
@@ -32,6 +34,22 @@ source ~/.bash_aliases
 shopt -s expand_aliases
 sf
 
+if [[ -x "$REPO_ROOT/venv/bin/mavproxy.py" ]]; then
+	MAVPROXY="$REPO_ROOT/venv/bin/mavproxy.py"
+else
+	MAVPROXY="$(command -v mavproxy.py || true)"
+fi
+if [[ -z "$MAVPROXY" ]]; then
+	echo "Error: mavproxy.py was not found. Install MAVProxy in the project venv." >&2
+	exit 1
+fi
+MAVPROXY_PYTHONPATH="/usr/lib/python3/dist-packages"
+if [[ -n "${PYTHONPATH:-}" ]]; then
+	MAVPROXY_PYTHONPATH="$MAVPROXY_PYTHONPATH:$PYTHONPATH"
+fi
+
+pkill -f 'mavproxy.py --master=tcp:127.0.0.1:5760' 2>/dev/null || true
+
 
 started=0
 MARKER="SIM_VEHICLE: Waiting for SITL to exit"
@@ -40,18 +58,15 @@ while IFS= read -r line; do
   printf '%s\n' "$line"
   if [[ $started -eq 0 && "$line" == *"$MARKER"* ]]; then
   	started=1
-	break
+	if [[ "$*" == *"--headless"* ]]; then
+		echo "Running headless mode..."
+		PYTHONPATH="$MAVPROXY_PYTHONPATH" "$MAVPROXY" --master=tcp:127.0.0.1:5760 --daemon --out=127.0.0.1:14550 --out=127.0.0.1:14551 --streamrate=-1 >/dev/null &
+	else
+		echo "Running with console and map..."
+		PYTHONPATH="$MAVPROXY_PYTHONPATH" "$MAVPROXY" --master=tcp:127.0.0.1:5760 --map --console --out=127.0.0.1:14550 --out=127.0.0.1:14551 --streamrate=-1 &
+	fi
   fi
 done < <(
   PYTHONUNBUFFERED=1 stdbuf -oL -eL \
   sim_vehicle.py -v copter --no-mavproxy -w -l "${LAT},${LON},0,0" 2>&1
 )
-
-if [[ "$*" == *"--headless"* ]]; then
-	echo "Running headless mode..."
-	mavproxy.py --master=tcp:127.0.0.1:5760 --daemon --out=127.0.0.1:14550 --out=127.0.0.1:14551 --streamrate=-1 >/dev/null &
-else
-	echo "Running with console..."
-	mavproxy.py --master=tcp:127.0.0.1:5760 --map --console --out=127.0.0.1:14550 --out=127.0.0.1:14551 --streamrate=-1
-	
-fi

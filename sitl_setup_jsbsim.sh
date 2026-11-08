@@ -1,8 +1,10 @@
 #!/bin/bash
 
 LAT="${1}"; LON="${2}"
+USE_JSBSIM="${USE_JSBSIM:-1}"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname -- "$SCRIPT_DIR")"
+PARAM_FILE="$SCRIPT_DIR/mav_0_1.parm"
 
 # Check for required latitude and longitude arguments.
 if [[ -z "$LAT" || -z "$LON" ]]; then
@@ -34,6 +36,11 @@ source ~/.bash_aliases
 shopt -s expand_aliases
 sf
 
+if [[ "$USE_JSBSIM" != "0" && "$USE_JSBSIM" != "1" ]]; then
+	echo "Error: USE_JSBSIM must be 0 or 1." >&2
+	exit 1
+fi
+
 SIM_VEHICLE="$(command -v sim_vehicle.py || true)"
 if [[ -z "$SIM_VEHICLE" ]]; then
 	echo "Error: sim_vehicle.py was not found. Install ArduPilot SITL first." >&2
@@ -45,26 +52,35 @@ MODEL_NAME="uavf_4plus1"
 MODEL_SOURCE="$REPO_ROOT/simcore/JSBSim/aircraft/$MODEL_NAME"
 ENGINE_SOURCE="$REPO_ROOT/simcore/JSBSim/engine"
 
-if [[ ! -f "$MODEL_SOURCE/$MODEL_NAME.xml" || ! -d "$ENGINE_SOURCE" ]]; then
-	echo "Error: the $MODEL_NAME JSBSim model is missing from $REPO_ROOT/simcore/JSBSim." >&2
-	exit 1
-fi
-
-link_model_file() {
-	local source="$1"
-	local destination="$2"
-	if [[ -e "$destination" && ! -L "$destination" ]]; then
-		echo "Error: refusing to replace existing file or directory: $destination" >&2
+if [[ "$USE_JSBSIM" == "1" ]]; then
+	if [[ ! -f "$MODEL_SOURCE/$MODEL_NAME.xml" || ! -d "$ENGINE_SOURCE" ]]; then
+		echo "Error: the $MODEL_NAME JSBSim model is missing from $REPO_ROOT/simcore/JSBSim." >&2
 		exit 1
 	fi
-	ln -sfn "$source" "$destination"
-}
+	link_model_file() {
+		local source="$1"
+		local destination="$2"
+		if [[ -e "$destination" && ! -L "$destination" ]]; then
+			echo "Error: refusing to replace existing file or directory: $destination" >&2
+			exit 1
+		fi
+		ln -sfn "$source" "$destination"
+	}
+	mkdir -p "$ARDUPILOT_AUTOTEST_DIR/aircraft" "$ARDUPILOT_AUTOTEST_DIR/engine"
+	link_model_file "$MODEL_SOURCE" "$ARDUPILOT_AUTOTEST_DIR/aircraft/$MODEL_NAME"
+	for engine_file in "$ENGINE_SOURCE"/*.xml; do
+		link_model_file "$engine_file" "$ARDUPILOT_AUTOTEST_DIR/engine/$(basename "$engine_file")"
+	done
+	FRAME="jsbsim:$MODEL_NAME"
+else
+	echo "Using ArduPilot's built-in QuadPlane SITL model (JSBSim disabled)."
+	FRAME="quadplane"
+fi
 
-mkdir -p "$ARDUPILOT_AUTOTEST_DIR/aircraft" "$ARDUPILOT_AUTOTEST_DIR/engine"
-link_model_file "$MODEL_SOURCE" "$ARDUPILOT_AUTOTEST_DIR/aircraft/$MODEL_NAME"
-for engine_file in "$ENGINE_SOURCE"/*.xml; do
-	link_model_file "$engine_file" "$ARDUPILOT_AUTOTEST_DIR/engine/$(basename "$engine_file")"
-done
+if [[ ! -f "$PARAM_FILE" ]]; then
+	echo "Error: QuadPlane parameter file not found: $PARAM_FILE" >&2
+	exit 1
+fi
 
 if [[ -x "$REPO_ROOT/venv/bin/mavproxy.py" ]]; then
 	MAVPROXY="$REPO_ROOT/venv/bin/mavproxy.py"
@@ -100,5 +116,6 @@ while IFS= read -r line; do
   fi
 done < <(
   PYTHONUNBUFFERED=1 stdbuf -oL -eL \
-	sim_vehicle.py -v plane -f "jsbsim:$MODEL_NAME" --no-mavproxy -w -l "${LAT},${LON},0,0" 2>&1
+	sim_vehicle.py -j4 -v Plane -f "$FRAME" --no-mavproxy -w \
+		--add-param-file="$PARAM_FILE" -l "${LAT},${LON},0,0" 2>&1
 )
